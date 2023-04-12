@@ -67,11 +67,11 @@ public class Pedido {
     }
 
     public double getvalorTotal() {
-        return this.valorUnitario * this.quantidade;
+        return this.valorTotal;
     }
 
     public void setvalorTotal(double valorTotal) {
-        this.valorTotal = this.valorUnitario * this.quantidade;
+        this.valorTotal = valorTotal;
     }
 
     /*

@@ -59,10 +59,10 @@ public class PedidoRepository {
                 pedido.setQuantidade(resultado.getInt("quantidade"));
                 pedido.setvalorUnitario(resultado.getDouble("valorunitario"));
                 pedidos.add(pedido);
-            } 
+            }
         } catch (Exception e) {
-            System.out.println("Não conseguiu consultar a tabela Pedido");
-            
+            System.out.println("Não conseguiu consultar a tabela pedido");
+
         } finally {
             conexao.desconectar(conn);
         }
@@ -74,7 +74,7 @@ public class PedidoRepository {
         Conexao conexao = new Conexao();
         Connection conn = conexao.conectar();
 
-        try{
+        try {
             String sql = "DELETE FROM pedido WHERE codigo = ?";
 
             PreparedStatement stm;
@@ -82,7 +82,7 @@ public class PedidoRepository {
             stm.setInt(1, id);
             stm.execute();
         } catch (Exception e) {
-            System.out.println("NAO EXCLUIU");
+            System.out.println("NÃO EXCLUIU");
         } finally {
             conexao.desconectar(conn);
         }
@@ -92,18 +92,18 @@ public class PedidoRepository {
         Conexao conexao = new Conexao();
         Connection conn = conexao.conectar();
 
-        try{
+        try {
             String sql = "DELETE FROM pedido";
 
             PreparedStatement stm;
             stm = conn.prepareStatement(sql);
-            
+
             stm.execute();
         } catch (Exception e) {
-            System.out.println("NAO EXCLUIU");
+            System.out.println("NÃO EXCLUIU");
         } finally {
             conexao.desconectar(conn);
         }
-        
+
     }
 }

@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTable;
@@ -19,10 +20,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import Model.Pedido;
-import Repository.Conexao;
 import Repository.PedidoRepository;
 
 public class TelaPrincipal {
+    double auxiliar = 0;
     List<Pedido> pedidos = new ArrayList<>();
     JFrame frame = new JFrame();
     JPanel painel = new JPanel();
@@ -54,6 +55,8 @@ public class TelaPrincipal {
     PedidoRepository repository = new PedidoRepository();
     DefaultTableModel model = new DefaultTableModel();
     Pedido pedido = new Pedido();
+    int resposta = 0;
+    double auxiliarSomaValorTotal = 0;
 
     public void criaTelaCadastro() {
         frame.setSize(960, 650);
@@ -121,77 +124,6 @@ public class TelaPrincipal {
         fazerPedido.setText("Fazer pedido");
         fazerPedido.setBounds(200, 580, 150, 20);
         painel.add(fazerPedido);
-        fazerPedido.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                try {
-                    Pedido pedido = new Pedido();
-                    pedido.setnomeCliente(tNome.getText());
-                    pedido.setCpf(tCpf.getText());
-                    if (feminino.isSelected()) {
-                        pedido.setSexo("Feminino");
-                    } else if (masculino.isSelected()) {
-                        pedido.setSexo("Masculino");
-                    }
-                    pedido.setnomeProduto(tProduto.getText());
-                    pedido.setvalorUnitario(Integer.parseInt(tPreco.getText()));
-                    pedido.setQuantidade(Integer.parseInt(tQuantidade.getText()));
-
-                    repository.inserePedido(pedido);
-
-                    tProduto.setText(null);
-                    tPreco.setText(null);
-                    tQuantidade.setText(null);
-
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                } finally {
-                    new consultaAction().actionPerformed(e);
-                }
-
-            }
-        });
-
-        finalizarPedido.setText("Finalizar pedido");
-        finalizarPedido.setBounds(400, 580, 150, 20);
-        finalizarPedido.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DefaultTableModel model = (DefaultTableModel) tabela.getModel();
-                model.setRowCount(0);
-                TableColumnModel columnModel = tabela.getColumnModel();
-                columnModel.removeColumn(null);
-
-                try {
-                    repository.limparPedido();
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-            }
-            
-            
-        });
-        painel.add(finalizarPedido);
-
-        removerItem.setText("Remover pedido");
-        removerItem.setBounds(600, 580, 150, 20);
-        removerItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                int linhaSelecionada = tabela.getSelectedRow();
-                try {
-                    repository.removerPedido((int) tabela.getValueAt(linhaSelecionada, 0));
-                } catch (Exception e1) {
-                }
-                new consultaAction().actionPerformed(e);
-            }
-        });
-
-        painel.add(removerItem);
 
         formaPagamento.setText("Forma de pagamento:");
         formaPagamento.setBounds(30, 200, 130, 70);
@@ -215,6 +147,87 @@ public class TelaPrincipal {
         comboFormaPagamento.addItem("Crédito");
         comboFormaPagamento.addItem("PIX");
 
+        fazerPedido.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                try {
+                    do {
+                        Pedido pedido = new Pedido();
+                        pedido.setnomeCliente(tNome.getText());
+                        pedido.setCpf(tCpf.getText());
+                        if (feminino.isSelected()) {
+                            pedido.setSexo("Feminino");
+                        } else if (masculino.isSelected()) {
+                            pedido.setSexo("Masculino");
+                        }
+                        pedido.setnomeProduto(tProduto.getText());
+                        pedido.setvalorUnitario(Integer.parseInt(tPreco.getText()));
+                        pedido.setQuantidade(Integer.parseInt(tQuantidade.getText()));
+                        pedido.setvalorTotal(pedido.getQuantidade() * pedido.getvalorUnitario());
+                        repository.inserePedido(pedido);
+
+                        tProduto.setText(null);
+                        tPreco.setText(null);
+                        tQuantidade.setText(null);
+
+                        auxiliarSomaValorTotal = (auxiliarSomaValorTotal + pedido.getvalorTotal());
+
+                        resposta = JOptionPane.showConfirmDialog(null, "Você deseja fazer outro pedido?");
+
+                        tTotalPedido.setText(String.valueOf(auxiliarSomaValorTotal));
+
+                    } while (resposta != 0);
+
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                } finally {
+                    new consultaAction().actionPerformed(e);
+                }
+            }
+
+        });
+
+        painel.add(finalizarPedido);
+        finalizarPedido.setText("Finalizar pedido");
+        finalizarPedido.setBounds(400, 580, 150, 20);
+        finalizarPedido.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DefaultTableModel model = (DefaultTableModel) tabela.getModel();
+                model.setRowCount(0);
+                TableColumnModel columnModel = tabela.getColumnModel();
+                columnModel.removeColumn(null);
+
+                try {
+                    repository.limparPedido();
+                    frame.dispose();
+
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            }
+
+        });
+
+        painel.add(removerItem);
+        removerItem.setText("Remover pedido");
+        removerItem.setBounds(600, 580, 150, 20);
+        removerItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                int linhaSelecionada = tabela.getSelectedRow();
+                try {
+                    repository.removerPedido((int) tabela.getValueAt(linhaSelecionada, 0));
+                } catch (Exception e1) {
+                }
+                new consultaAction().actionPerformed(e);
+            }
+        });
+
     }
 
     public class consultaAction implements ActionListener {
@@ -237,45 +250,19 @@ public class TelaPrincipal {
 
             model.addColumn("Código");
             model.addColumn("Nome");
-            model.addColumn("Qtd");
+            model.addColumn("Quantidade");
             model.addColumn("Valor");
+            model.addRow(new Object[] { " Código ", " Nome ", " Quantidade ", " Valor " });
 
             for (int i = 0; i < pedidos.size(); i++) {
                 pedido = pedidos.get(i);
-                model.addRow(new Object[] { pedido.getCodigo(), pedido.getnomeProduto(), pedido.getQuantidade(), pedido.getvalorUnitario() });
+                model.addRow(new Object[] { pedido.getCodigo(), pedido.getnomeProduto(), pedido.getQuantidade(),
+                        pedido.getvalorUnitario() });
             }
 
             tabela.setModel(model);
+        }
+
     }
- }
+
 }
-
-// listaProdutos.setBounds(90, 405, 150, 20);
-
-// Trás o valor do produto automático no campo "Preço: R$"
-
-// listaProdutos.addActionListener(new ActionListener() {
-
-/*
- * @Override
- * public void actionPerformed(ActionEvent e) {
- * Pedido pedidoSelecionado = (Pedido) listaProdutos.getSelectedItem();
- * double preco = pedidoSelecionado.getvalorUnitario();
- * tPreco.setText("" + preco);
- * }
- * });
- */
-
-// painel.add(listaProdutos);
-
-/*
- * Lista de produtos num ArrayList
- * Pedido pedido1 = new Pedido(1, "Refri", 5.00);
- * Pedido pedido2 = new Pedido(2, "Batata", 8.00);
- * Pedido pedido3 = new Pedido(3, "Hamburguer", 14.00);
- * Pedido pedido4 = new Pedido(4, "Sorvete", 7.50);
- * listaProdutos.addItem(pedido1);
- * listaProdutos.addItem(pedido2);
- * listaProdutos.addItem(pedido3);
- * listaProdutos.addItem(pedido4);
- */
