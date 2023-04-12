@@ -262,7 +262,5 @@ public class TelaPrincipal {
 
             tabela.setModel(model);
         }
-
     }
-
 }
